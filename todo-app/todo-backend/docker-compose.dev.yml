@@ -1,10 +1,24 @@
 version: "3.8"
 
 services:
+  server:
+    image: todo-dev-backend
+    restart: always
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    environment:
+      - REDIS_URL=//redis:6379
+      - MONGO_URL=mongodb://the_username:complex-example@mongo:27017/the_database
+      - PORT=3001
+    ports:
+      - 3001:3001
+    volumes:
+      - ./:/usr/src/app
+    container_name: todo-dev-backend
   mongo:
     image: mongo
-    ports:
-      - 3456:27017
+    restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -12,13 +26,14 @@ services:
     volumes:
       - ./mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
       - mongo_data:/data/db
+    container_name: mongo
   redis:
     image: redis
-    ports:
-      - 5001:6379
+    restart: always
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - ./redis_data:/data
+    container_name: redis
 
 volumes:
   mongo_data:
